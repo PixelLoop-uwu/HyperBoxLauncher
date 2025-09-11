@@ -11,7 +11,6 @@ function App () {
     document.getElementById("window-minimize").onclick = () => window.pywebview.api.minimize();
   });
 
-
   return (
     <>
       {scene === "login" && <LoginScene setScene={setScene} />}
@@ -21,6 +20,5 @@ function App () {
     </>
   )
 }
-
 
 root.render( <App /> );
