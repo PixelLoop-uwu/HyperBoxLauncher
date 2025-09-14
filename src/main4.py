@@ -29,7 +29,7 @@ class main():
       js_api = Api()
     )
 
-    webview.start(debug=False)
+    webview.start(debug=True)
 
 
 if __name__ == '__main__':

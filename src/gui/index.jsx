@@ -13,10 +13,15 @@ function App () {
 
   return (
     <>
-      {scene === "login" && <LoginScene setScene={setScene} />}
-      {scene === "main" && <MainScene ramQuantity={16} selectedRamQuantity={8} autoRamQuantity={false} gameDir={''}  />}
+      <header class="pywebview-drag-region">
+        <div class="window-title">HyperBox Launcher</div>
+        <div class="action-buttons">
+          <div id="window-minimize">-</div>
+          <div id="window-close">⨯</div>
+        </div>
+      </header>
 
-      {/* {scene === "loading" && <LoadingScene />} */}
+      
     </>
   )
 }
