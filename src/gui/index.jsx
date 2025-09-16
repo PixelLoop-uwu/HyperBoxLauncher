@@ -1,27 +1,50 @@
 const root = ReactDOM.createRoot(document.getElementById('root'));
-const { useState } = React;
+const { useState, useEffect } = React;
 
 function App () {
   const [scene, setScene] = useState("login");
+  
+  useEffect(() => {
+    const handler = () => {
+      console.log("[Hyperbox] PyWebView is ready");
+    };
 
-  window.addEventListener('pywebviewready', () => {
-  // Управление окном
-    document.getElementById("window-close").onclick = () => window.pywebview.api.close();
+    window.addEventListener("pywebviewready", handler);
 
-    document.getElementById("window-minimize").onclick = () => window.pywebview.api.minimize();
-  });
+    return () => {
+      window.removeEventListener("pywebviewready", handler);
+    };
+  }, []);
 
+  const closeWindow = () => {
+    if (window.pywebview?.api) {
+      window.pywebview.api.close();
+    }
+  };
+
+  const minimizeWindow = () => {
+    if (window.pywebview?.api) {
+      window.pywebview.api.minimize();
+    }
+  };
+
+  const changeSceneToMain = () => {
+    setScene("main")
+  }
+ 
   return (
     <>
-      <header class="pywebview-drag-region">
-        <div class="window-title">HyperBox Launcher</div>
-        <div class="action-buttons">
-          <div id="window-minimize">-</div>
-          <div id="window-close">⨯</div>
+      <header className="pywebview-drag-region">
+        <div className="window-title">HyperBox Launcher</div>
+        <div className="action-buttons">
+          <div id="window-minimize" onClick={minimizeWindow}>-</div>
+          <div id="window-close" onClick={closeWindow}>⨯</div>
         </div>
       </header>
 
-      
+      {scene == "login" ? <Login changeSceneToMain = {changeSceneToMain} /> : <Main />}
+      {/* {scene == "main" && <Main />} */}
+
     </>
   )
 }
