@@ -18,7 +18,7 @@ function App () {
 
   const closeWindow = () => {
     if (window.pywebview?.api) {
-      window.pywebview.api.close();
+      window.pywebview.api.close(); 1   
     }
   };
 
@@ -27,10 +27,6 @@ function App () {
       window.pywebview.api.minimize();
     }
   };
-
-  const changeSceneToMain = () => {
-    setScene("main")
-  }
  
   return (
     <>
@@ -42,8 +38,8 @@ function App () {
         </div>
       </header>
 
-      {scene == "login" ? <Login changeSceneToMain = {changeSceneToMain} /> : <Main />}
-      {/* {scene == "main" && <Main />} */}
+      {scene == "login" && <Login setScene = {setScene} />}
+      {scene == "main" &&  <Main />}
 
     </>
   )

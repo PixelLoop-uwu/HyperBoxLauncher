@@ -4,21 +4,22 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-function Login ({ changeSceneToMain }) {
+function Login ({ setScene }) {
   const [visible, setVisible] = useState(false);
 
-  const [login, setLogin] = useState();
-  const [token, setToken] = useState()
+  const [login, setLogin] = useState('');
+  const [token, setToken] = useState('');
 
-  const [incorrect, setIncorrect] = useState(false)
-  const [serverError, setServerError] = useState(false)
+  const [incorrect, setIncorrect] = useState(false);
+  const [serverError, setServerError] = useState(false);
 
-  useEffect(async () => {
-    const [lastedLogin, lastedToken] = await window.pywebview.api.getLastedOptions();
-
-    setLogin(lastedLogin)
-    setToken(lastedToken)
-    
+  useEffect(() => {
+    async function fetchOptions() {
+      const [lastedLogin, lastedToken] = await window.pywebview.api.getLastedOptions();
+      setLogin(lastedLogin);
+      setToken(lastedToken);
+    }
+    fetchOptions();
   }, []);
 
   async function tryToLogin() {
@@ -29,7 +30,7 @@ function Login ({ changeSceneToMain }) {
         setServerError(true)
       } else if (success) {
         setServerError(false)
-        changeSceneToMain()
+        setScene('main')
       } else {
         setServerError(false)
         incorrectPasswordState()

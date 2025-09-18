@@ -21,7 +21,7 @@
   --main-color: #ffffff;
   --main-color-dark: rgba(255, 255, 255, 0.715);
 
-  --header-bg: rgba(0, 0, 0, 0.2);
+  --transperent-bg: rgba(0, 0, 0, 0.2);
   --selection-bg: rgba(255, 255, 255, 0.333);
 
   --button-text-color: #000000;
@@ -78,7 +78,7 @@ header {
 
   font-size: 18px;
   border-radius: 10px;
-  background-color: var(--header-bg);
+  background-color: var(--transperent-bg);
 
   z-index: 100;
 }
@@ -203,4 +203,221 @@ input[type="password"]::-ms-clear {
   width: 100% ;
   position: absolute;
   bottom: -20px; right: 0;
+}
+
+/* ---------- Main scene ---------- */
+
+.MainScene {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  position: relative;
+}
+
+.main-modpacks-list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  height: 90%;
+  width: 22%;
+  border-radius: 15px;
+  background-color: var(--transperent-bg);
+
+  gap: 20px;
+  padding: 15px 0;
+  margin-left: 15px;
+}
+
+/* .modpack {
+  border: 2px solid var(--background-color);
+  border-radius: 15px;
+
+  background-color: white;
+
+  display: flex;
+  flex-direction: column;
+  height: 55px;
+  width: 180px;
+
+  transition: all 0.3s ease;
+}
+
+.modpack > img {
+  flex: 1
+}
+
+.modpack > span {
+  color: #000000;
+} */
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+
+  gap: 15px;
+
+  padding: 15px;
+  margin: 0 15px;
+
+  height: 90%;
+
+  border-radius: 15px;
+  background-color: var(--transperent-bg);
+}
+
+.main-settings-toggle {
+  position: absolute;
+
+  top: 25px;
+  right: 15px;
+}
+
+.main-title {
+  font-size: 42px;
+  font-weight: 500;
+  margin-top: 10px; 
+}
+
+.main-description {
+  font-size: 19px;
+  line-height: 1.5;
+
+  text-wrap: initial;
+}
+
+.main-title, .main-description {
+  transform: translateY(0);
+  opacity: 1;
+  transition: all 0.5s;
+}
+
+.main-title.slideUp, .main-description.slideUp {
+  transform: translateY(20px);
+  opacity: 0;  
+}
+
+.main-title.slideDown, .main-description.slideDown {
+  transform: translateY(-20px);
+  opacity: 0;  
+}
+
+.main-control {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+
+  margin: 15px 5px;
+  margin-top: auto;
+}
+
+.main-play {
+  background-color: var(--main-color);
+  border-radius: 10px;
+  border: 2px solid transparent;
+
+  color: var(--button-text-color);
+  font-family: var(--font-main);
+  font-size: 18px;
+  font-weight: bolder;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  height: 35px;
+  width: 170px;
+  padding: 5px;
+
+  transition: all 0.3s ease;
+}
+
+.main-play > img {
+  height: 20px;
+}
+
+.main-folder, .main-settings-toggle {
+  background-color: transparent;
+  border-radius: 10px;
+  border: 2px solid var(--main-color);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  height: 35px;
+  width: 35px;
+
+  transition: all 0.3s ease;
+}
+
+.main-folder > img, .main-settings-toggle > img {
+  height: 20px
+}
+
+.main-content-2 {
+  display: none;
+  flex-direction: row;
+  align-items: center;
+
+  margin: 0px 5px;
+  margin-top: -10px;
+  gap: 20px;
+}
+
+.main-progress-bar {
+  border: 2px solid var(--main-color);  
+  border-radius: 15px;
+
+  height: 5px;
+  width: 60%;
+}
+
+.main-auth {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  
+  width: auto;
+  min-width: 145px;
+  padding: 0px 25px;
+  height: 35px;
+
+  border: 2px solid var(--main-color);
+  border-radius: 10px;
+
+  margin-left: auto;
+
+  transition: all 0.3s ease;
+}
+
+.main-auth > label > img {
+  height: 25px;
+  width: 25px;
+  border-radius: 30px;
+
+  border: 0.5px solid var(--background-color);
+  transition: all 0.3s ease;
+}
+
+.main-auth > span {
+  font-family: var(--font-main);
+  font-weight: bold;
+  padding-left: 10px;
+  border-left: 2px solid var(--main-color);
+}
+
+.main-play:hover, .main-folder:hover, .main-settings-toggle:hover, .modpack:hover,
+.main-auth > label > img:hover {
+  opacity: 0.8;
+}
+
+.main-play:active, .main-folder:active, .main-settings-toggle:active, .modpack:active,
+.main-auth > label > img:active {
+  /* transform: scale(0.985); */
+  opacity: 0.5;
 }

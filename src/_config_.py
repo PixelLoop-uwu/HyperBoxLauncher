@@ -12,4 +12,4 @@ class _config_ ():
 
   CONFIG_FILE = f"{MAIN_DIR}/config.json"
   UPDATES_DIR = f"{MAIN_DIR}/updates"
-  # TEMP_DIR = os.environ['TEMP']
+  TEMP_DIR = os.environ['TEMP']
