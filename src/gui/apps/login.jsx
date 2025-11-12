@@ -15,7 +15,7 @@ function Login ({ setScene }) {
 
   useEffect(() => {
     async function fetchOptions() {
-      const [lastedLogin, lastedToken] = await window.pywebview.api.getLastedOptions();
+      const [lastedLogin, lastedToken] = await window.pywebview.api.getLastOptions();
       setLogin(lastedLogin);
       setToken(lastedToken);
     }
@@ -24,19 +24,23 @@ function Login ({ setScene }) {
 
   async function tryToLogin() {
     if (window.pywebview?.api) {
-      const success = await window.pywebview.api.tryToLogin(login, token);
+      const status = await window.pywebview.api.tryToLogin(login, token);
         
-      if (success == 'OSError') {
-        setServerError(true)
-      } else if (success) {
-        setServerError(false)
-        setScene('main')
-      } else {
-        setServerError(false)
-        incorrectPasswordState()
+      if ("error" in status) {
+        if (status.error == "token_or_username_is_incorrect") {
+
+        } else if (status.error == "token_or_username_is_invalid") {
+
+        } else if (status.error == "connection_error") {
+
+        }
+      }
+
+      if (status.status) {
+        setScene("main")
       }
   }};
-
+  
   async function incorrectPasswordState() {
     setIncorrect(true); await sleep(2000); setIncorrect(false)
   }
