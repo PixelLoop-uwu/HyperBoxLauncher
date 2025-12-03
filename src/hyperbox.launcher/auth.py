@@ -1,7 +1,5 @@
 import re
-
-from asyncio import TimeoutError
-from aiohttp import ClientConnectionError, ClientError
+from loguru import logger
 
 from client import Client
 from services import save_last_login_options
@@ -11,6 +9,7 @@ class Auth:
   def __init__(self):
     self.client = Client()
     self.username = None
+    self.assets_token = None
 
   @staticmethod
   def _is_username_valid(username: str) -> bool:
@@ -33,37 +32,36 @@ class Auth:
   
 
   def get_username(self) -> str:
-    """Returns minecraft username"""
+    """Return minecraft username."""
     return self.username
+  
+  def get_assets_token(self) -> str:
+    """Return assets token."""
+    return self.assets_token
 
 
   async def try_to_login(self, username: str, token: str) -> dict:
-    """
-    Can return:
-      {"status": True} 
-      {"error": "token_or_username_is_incorrect}
-      {"error": "token_or_username_is_invalid"}
-      {"error": "connection_error"}
-    """
 
     if not (Auth._is_username_valid(username) and Auth._is_token_valid(token)):
-      print("[HyperBox] Token or Username is invalid")
+      logger.error("Username or Token is invalid")
       return {"error": "token_or_username_is_invalid"}
 
-    try:
-      # API request
-      async with self.client as api:
-        print("[HyperBox] Trying to login....")
-        ok = await api.try_to_login(username, token)
+    # API request
+    async with self.client as api:
+      logger.info(f"Trying to login with {username} {token}")
+      ok = await api.try_to_login(username, token)
 
-        self.username = username
-        save_last_login_options(username, token)
+      if ok.get("status") == True:
+        self.assets_token = ok.get("assets_token", None)
+        logger.success("Success")
 
-        print("[HyperBox] Success")
+      # if ok.get("status") == "error":
+      #   logger.error(f'Authorization error: {ok["error"]}')
 
-    except (TimeoutError, ClientConnectionError, ClientError) as e:
-      print("[HyperBox] Connection error:", e)
-      return {"error": "connection_error"}
+      self.username = username
+      save_last_login_options(username, token)
 
     return ok
   
+
+auth = Auth()   

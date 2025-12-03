@@ -1,5 +1,5 @@
-**/.venv
+.venv
 **/__pycache__
 
-**/.gitignore
-**/xuita.py
+temp
+.launcher

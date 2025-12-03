@@ -1,0 +1,153 @@
+import shutil
+import hashlib
+import aiohttp
+import aiofiles
+import tempfile
+import asyncio
+from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
+from pathlib import Path
+from loguru import logger
+
+class Loader:
+  def __init__(self, main_dir: Path, game_dir: Path, window, limit=35):
+    self.game_dir = game_dir
+    self.main_dir = main_dir
+    self.window = window
+
+    self.sem = asyncio.Semaphore(limit)
+
+  async def _file_matches(self, path: Path, expected_size: int, expected_sha1: str) -> bool:
+    """Check if a file exists and matches expected size and SHA-1."""
+    if not path.exists():
+      return False
+    
+    if path.stat().st_size != expected_size:
+      logger.warning(f"File {path} exists, but size does not match. Re-downloading.")
+      return False
+    
+    file_sha1 = hashlib.sha1(path.read_bytes()).hexdigest()
+    if file_sha1 != expected_sha1:
+      logger.warning(f"File {path} exists, but SHA-1 does not match. Re-downloading.")
+      return False
+    
+    logger.info(f"File {path} already exists and matches the checksum, skipping.")
+    return True
+  
+  
+  @retry(
+    stop=stop_after_attempt(3), 
+    wait=wait_exponential(min=1, max=5), 
+    retry=retry_if_exception_type((aiohttp.ClientError, asyncio.TimeoutError, OSError))
+  )
+  async def _download_file(self, file_info: dict, base_dir: Path) -> None:
+    """Download a file asynchronously and verify its integrity."""
+    path = base_dir / file_info["path"]
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    if await self._file_matches(path, file_info["size"], file_info["sha1"]):
+      return
+
+    temp_dir = Path(tempfile.mkdtemp())
+    temp_path = temp_dir / path.name
+
+    try:
+      async with aiohttp.ClientSession() as session:
+        logger.info(f"Downloading {file_info['url']} -> {temp_path}")
+        async with session.get(file_info["url"], timeout=60) as response:
+          response.raise_for_status()
+          async with aiofiles.open(temp_path, "wb") as f:
+            async for chunk in response.content.iter_chunked(8192):
+              await f.write(chunk)
+
+      if temp_path.stat().st_size != file_info["size"]:
+        raise ValueError(
+          f"File size mismatch: expected {file_info['size']}, got {temp_path.stat().st_size}"
+        )
+
+      sha1 = hashlib.sha1(temp_path.read_bytes()).hexdigest()
+      if sha1 != file_info["sha1"]:
+        raise ValueError(
+          f"SHA-1 mismatch: expected {file_info['sha1']}, got {sha1}"
+        )
+
+      shutil.move(str(temp_path), str(path))
+      logger.info(f"File successfully downloaded and moved: {path}")
+    finally:
+      if temp_dir.exists():
+        shutil.rmtree(temp_dir)
+
+
+  # * Assets
+  async def download_java(self, java: list, version: str) -> Path:
+    self.window.evaluate_js(f'window.GameLog.setMaxProgress({len(java)})')
+    java_dir = self.main_dir / "java" / version
+
+    async def wrapper(item):
+      async with self.sem:
+        self.window.evaluate_js(f'window.GameLog.setCurrentFile("{Path(item["path"]).name}")')
+        await self._download_file(item, java_dir)
+        self.window.evaluate_js('window.GameLog.addProgress(1)')
+
+    tasks = [wrapper(item) for item in java]
+    await asyncio.gather(*tasks)
+
+    self.window.evaluate_js(f'window.GameLog.resetProgress()')
+    return java_dir / "bin/java.exe"
+
+  # * Libraries
+  async def download_libraries(self, libraries: dict) -> None:
+    self.window.evaluate_js(f'window.GameLog.setMaxProgress({len(libraries)})')
+    libraries_dir = self.game_dir / "libraries"
+
+    async def wrapper(lib):
+      async with self.sem:
+        self.window.evaluate_js(f'window.GameLog.setCurrentFile("{Path(lib["path"]).name}")')
+        await self._download_file(lib, libraries_dir)
+        self.window.evaluate_js('window.GameLog.addProgress(1)')
+
+    tasks = [wrapper(lib) for lib in libraries]
+    await asyncio.gather(*tasks)
+
+    self.window.evaluate_js(f'window.GameLog.resetProgress()')
+
+  # * Game resources
+  async def download_resources(self, resources: dict) -> None:
+    self.window.evaluate_js(f'window.GameLog.setMaxProgress({len(resources)})')
+
+    async def wrapper(item):
+      async with self.sem:
+        self.window.evaluate_js(f'window.GameLog.setCurrentFile("{Path(item["path"]).name}")')
+        await self._download_file(item, self.game_dir)
+        self.window.evaluate_js('window.GameLog.addProgress(1)')
+
+    tasks = [wrapper(item) for item in resources]
+    await asyncio.gather(*tasks)
+
+    self.window.evaluate_js(f'window.GameLog.resetProgress()')
+
+  # * Assets
+  async def download_assets(self, assets: list, index: dict, id: str, limit=40) -> None:
+    assets_dir = self.main_dir / "assets" / id
+
+    # Index
+    self.window.evaluate_js(f'window.GameLog.setMaxProgress({1 + len(assets)})')
+    
+    self.window.evaluate_js('window.GameLog.setCurrentFile("assets index")')
+    await self._download_file(index, assets_dir)
+    self.window.evaluate_js('window.GameLog.addProgress(1)')
+
+    # Assets
+    obj_dir = assets_dir / "objects"
+
+    async def wrapper(f):
+      async with self.sem:
+        self.window.evaluate_js(f'window.GameLog.setCurrentFile("{Path(f["path"]).name}")')
+        await self._download_file(f, obj_dir)
+        self.window.evaluate_js('window.GameLog.addProgress(1)')
+
+    tasks = [wrapper(f) for f in assets]
+    await asyncio.gather(*tasks)
+
+    self.window.evaluate_js(f'window.GameLog.resetProgress()')
+    return assets_dir
+    
