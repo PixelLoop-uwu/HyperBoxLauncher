@@ -44,7 +44,7 @@ function Main() {
     }
 
     getMainData();
-  }, []);
+  }, [])
 
   const handleClickModpack = (id) => {
     if (!data || id === currentModpack || animating) return;
@@ -63,7 +63,7 @@ function Main() {
         setAnimating(false);
       }, 300);
     }, 300);
-  };
+  }
 
   const modpackTemplate = (modpackInfo) => (
     <div
@@ -73,7 +73,7 @@ function Main() {
     >
       <span className="name">{modpackInfo.title}</span>
     </div>
-  );
+  )
 
 
   const openGameFolder = async () => {
@@ -81,12 +81,13 @@ function Main() {
     const path = mainDir + "/updates/" + current.folder;  
 
     await window.pywebview.api.openGameFolder(path);
-  };
+  }
 
   const launchPlay = async (modpack) => { 
-    setGameLogsOpen(true)
-    await window.pywebview.api.launchPlay(modpack)
-  };
+    setGameLogsOpen(true);
+    changeConfigById("waiting")
+    await window.pywebview.api.launchPlay(modpack);
+  }
 
   const skinHandler = (event) => {
     const file = event.target.files[0];
@@ -114,7 +115,7 @@ function Main() {
       }
 
       <div className="main-modpacks-list">
-        {data ? data.modpacks.map(m => modpackTemplate(m)) : 'загрузка'}
+        {data ? data.modpacks.map(m => modpackTemplate(m)) : 'Loading'}
       </div>
 
       <div className="main-content">
@@ -123,11 +124,11 @@ function Main() {
           </button>
 
         <span className={`main-title ${animationClass}`}>
-          {current ? current.title : 'загрузка'}
+          {current ? current.title : 'Loading'}
         </span>
 
         <span className={`main-description ${animationClass}`}>
-          {current ? current.description.map((p, index) => <p key={index}>{p}</p>) : 'загрузка'}
+          {current ? current.description.map((p, index) => <p key={index}>{p}</p>) : <p>Loading</p>}
         </span>
 
         <div className="main-control">

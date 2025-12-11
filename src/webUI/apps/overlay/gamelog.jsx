@@ -1,5 +1,9 @@
 const { useState, useEffect } = React;
 
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 function GameLogOverlay() {
 	const [stage, setStage] = useState('Загрузка...')
 
@@ -9,7 +13,9 @@ function GameLogOverlay() {
 
 	const [errorTitle, setErrorTitle] = useState("")
 	const [errorSubtitle, setErrorSubtitle] = useState("")
+
 	const [isError, setError] = useState(false)
+	const [isOpenOverlay, setOpenOverlay] = useState(true)
 
 	const ChangeProgress = (count) => {
 		setProgress(prev => prev + count)
@@ -35,6 +41,8 @@ function GameLogOverlay() {
 		setErrorTitle(title)
 		setErrorSubtitle(subtitle)
 		setError(true)
+		sleep(1000)
+		setOpenOverlay(false)
 	}
 
 	useEffect(() => {
@@ -51,7 +59,7 @@ function GameLogOverlay() {
 
 	return (
 		<>
-			<div className="overlay">
+			{isOpenOverlay && <div className="overlay">
 				<div className="gameLogs-content">
 					<div className="gameLog-title">Запуск игры...</div>
 
@@ -80,7 +88,7 @@ function GameLogOverlay() {
 					<button className="gameLog-kill-button" onClick={onClose}>Завершить</button>
 					*/}
 				</div>
-			</div>
+			</div>}
 
 			{isError && <ErrorOverlay 
         errorTitle={errorTitle}

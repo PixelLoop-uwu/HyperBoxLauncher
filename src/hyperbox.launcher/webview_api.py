@@ -32,7 +32,8 @@ class Api:
   
   def connectionCheck(self) -> bool:
     return True
-    import requests; return requests.get(_config_.API, timeout=2).ok
+    try: import requests; return requests.get(_config_.API, timeout=2).ok
+    except: return False
 
 
   # * Main screen

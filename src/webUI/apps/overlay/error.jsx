@@ -1,4 +1,6 @@
 function ErrorOverlay({ errorTitle, errorLog }) {
+    changeConfigById("error");
+
   return (  
     <div className="error_overlay">
       <div className="error-content">

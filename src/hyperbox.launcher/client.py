@@ -82,9 +82,6 @@ class Client:
   async def get_from_url(self, url: str) -> dict:
     return await self._request("GET", url=url)
   
-  async def get_skin(self, username) -> str:
-    return await self._request("GET", endpoint=f"skins/get", params={"username": username})
-  
   async def upload_skin(self, base64Data, username, assets_token) -> dict:
     return await self._request("POST", endpoint="skins/upload", json={
       "base64Data": base64Data,

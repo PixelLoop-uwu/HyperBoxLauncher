@@ -9,6 +9,7 @@ from _config_ import _config_
 from utils import load_config, write_config
 from client import Client
 
+
 def get_main_dir() -> Path:
 	cfg = load_config()
 	options = cfg.get("options", {})

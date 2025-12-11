@@ -45,11 +45,10 @@ function Login ({ setScene }) {
       setLoginOpacity(1)
       isDisabledToggle(false)
         
-      if ("error" in status) {
-        if (status.status === "token_or_username_is_incorrect" || status.status === "token_or_username_is_invalid") {
+      if (status.status === "error") {
+        if (status.type === " " || status.type === "token_or_username_is_invalid") 
           incorrectLoginOrTokenState();
-        }
-
+        
         else if (status.status == "error") {
           serverErrorState()
 
@@ -60,17 +59,19 @@ function Login ({ setScene }) {
         }
       }
 
-      if (status.status == true) setScene("main")
+      if (status.status == true) {
+        setScene("main");
+      }
   }}
   
   async function incorrectLoginOrTokenState () {
-    setIncorrect(true); 
-    isDisabledToggle(true); 
+    changeConfigById("error");
+    isDisabledToggle(true);
 
-    await sleep(2000); 
+    await sleep(2500); 
 
     isDisabledToggle(false);
-    setIncorrect(false);
+    changeConfigById("main");
   }
 
   async function serverErrorState () {
@@ -82,7 +83,7 @@ function Login ({ setScene }) {
 
     setServerError(false);
     isDisabledToggle(false);
-    setLoginOpacity(1)
+    setLoginOpacity(1);
   }
 
   return (

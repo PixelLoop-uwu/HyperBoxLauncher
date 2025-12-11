@@ -44,7 +44,7 @@ class Auth:
 
     if not (Auth._is_username_valid(username) and Auth._is_token_valid(token)):
       logger.error("Username or Token is invalid")
-      return {"error": "token_or_username_is_invalid"}
+      return {"status": "error", "type": "token_or_username_is_invalid"}
 
     # API request
     async with self.client as api:

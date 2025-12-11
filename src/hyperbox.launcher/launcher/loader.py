@@ -8,6 +8,8 @@ from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_excep
 from pathlib import Path
 from loguru import logger
 
+from _config_ import _config_
+
 class Loader:
   def __init__(self, main_dir: Path, game_dir: Path, window, limit=35):
     self.game_dir = game_dir
@@ -112,16 +114,26 @@ class Loader:
 
   # * Game resources
   async def download_resources(self, resources: dict) -> None:
-    self.window.evaluate_js(f'window.GameLog.setMaxProgress({len(resources)})')
-
     async def wrapper(item):
       async with self.sem:
         self.window.evaluate_js(f'window.GameLog.setCurrentFile("{Path(item["path"]).name}")')
         await self._download_file(item, self.game_dir)
         self.window.evaluate_js('window.GameLog.addProgress(1)')
 
-    tasks = [wrapper(item) for item in resources]
+    # ! Required
+    required_resources = resources["requiredResources"]
+
+    self.window.evaluate_js(f'window.GameLog.setMaxProgress({len(required_resources)})')
+    tasks = [wrapper(item) for item in required_resources]
     await asyncio.gather(*tasks)
+
+    # ! Static
+    if not _config_.CONFIG_FILE.exists():
+      static_resources = resources["staticResources"]
+
+      self.window.evaluate_js(f'window.GameLog.setMaxProgress({len(static_resources)})')
+      tasks = [wrapper(item) for item in static_resources]
+      await asyncio.gather(*tasks)
 
     self.window.evaluate_js(f'window.GameLog.resetProgress()')
 
@@ -129,14 +141,14 @@ class Loader:
   async def download_assets(self, assets: list, index: dict, id: str, limit=40) -> None:
     assets_dir = self.main_dir / "assets" / id
 
-    # Index
+    # ! Index
     self.window.evaluate_js(f'window.GameLog.setMaxProgress({1 + len(assets)})')
     
     self.window.evaluate_js('window.GameLog.setCurrentFile("assets index")')
     await self._download_file(index, assets_dir)
     self.window.evaluate_js('window.GameLog.addProgress(1)')
 
-    # Assets
+    # ! Assets
     obj_dir = assets_dir / "objects"
 
     async def wrapper(f):
