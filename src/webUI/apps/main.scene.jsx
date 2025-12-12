@@ -143,7 +143,7 @@ function Main() {
 
           <div className="main-auth">
             <label>
-              <img src={`https://resources.hyperbox.world/player_data/${data && data.username}/avatar.png`} alt="" />
+              <img src={`https://api.hyperbow.world/skins/get_avatar/${data && data.username}`} alt="" />
               <input type="file" name="skin" onChange={skinHandler} hidden />
             </label>
             <span>{data ? data.username : 'загрузка'}</span>

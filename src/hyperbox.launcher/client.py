@@ -68,7 +68,7 @@ class Client:
 
 
   async def try_to_login(self, username: str, token: str) -> dict:
-    return await self._request("POST", endpoint="auth/authorization", json={
+    return await self._request("POST", endpoint="users/login", json={
       "username": username,
       "token": token
     })
@@ -83,8 +83,8 @@ class Client:
     return await self._request("GET", url=url)
   
   async def upload_skin(self, base64Data, username, assets_token) -> dict:
-    return await self._request("POST", endpoint="skins/upload", json={
+    return await self._request("POST", endpoint="skins/upload_skin", json={
       "base64Data": base64Data,
       "username": username,
-      "assets_token": assets_token
+      "app_token": assets_token
     })
