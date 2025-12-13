@@ -46,10 +46,10 @@ function Login ({ setScene }) {
       isDisabledToggle(false)
         
       if (status.status === "error") {
-        if (status.type === "token_or_username_is_incorrect" || status.type === "token_or_username_is_invalid") 
+        if (status.error === "token_or_username_is_incorrect" || status.error === "token_or_username_is_invalid") 
           incorrectLoginOrTokenState();
         
-        else if (status.status == "error") {
+        else {
           serverErrorState()
 
           if (connectionErrorCounter >= 2) 

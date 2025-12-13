@@ -35,9 +35,9 @@ class Client:
           logger.error(f"HTTP {response.status} error from {url}: {text}")
           return {
             "status": "error",
-            "type": "http_error",
+            "error": "http_error",
             "code": response.status,
-            "error": text
+            "text": text
           }
         
         return await response.json()
@@ -46,31 +46,32 @@ class Client:
       logger.error(f"Connection error: {e}")
       return {
         "status": "error",
-        "type": "connection_error",
-        "error": str(e)
+        "error": "connection_error",
+        "text": str(e)
       }
 
     except asyncio.TimeoutError:
       logger.error(f"Timeout while requesting {url}")
       return {
         "status": "error",
-        "type": "timeout",
-        "error": "request_timeout"
+        "error": "timeout",
+        "text": "request_timeout"
       }
 
     except Exception as e:
       logger.error(f"Unexpected error: {e}")
       return {
         "status": "error",
-        "type": "unexpected_error",
-        "error": str(e)
+        "error": "unexpected_error",
+        "text": str(e)
       }
 
 
   async def try_to_login(self, username: str, token: str) -> dict:
     return await self._request("POST", endpoint="users/login", json={
       "username": username,
-      "token": token
+      "token": token,
+      "app_token": _config_.APP_TOKEN
     })
 
   async def get_modpacks_data(self) -> list:
@@ -86,5 +87,5 @@ class Client:
     return await self._request("POST", endpoint="skins/upload_skin", json={
       "base64Data": base64Data,
       "username": username,
-      "app_token": assets_token
+      "app_token": _config_.APP_TOKEN
     })
