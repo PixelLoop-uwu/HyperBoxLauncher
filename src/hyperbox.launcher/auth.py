@@ -51,6 +51,8 @@ class Auth:
       logger.info(f"Trying to login with {username} {token}")
       ok = await api.try_to_login(username, token)
 
+      logger.error(ok)
+
       if ok.get("status") == True:
         self.assets_token = ok.get("assets_token", None)
         logger.success("Success")

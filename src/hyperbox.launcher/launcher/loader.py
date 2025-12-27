@@ -97,7 +97,7 @@ class Loader:
     return java_dir / "bin/java.exe"
 
   # * Libraries
-  async def download_libraries(self, libraries: dict) -> None:
+  async def download_libraries(self, libraries: list) -> None:
     self.window.evaluate_js(f'window.GameLog.setMaxProgress({len(libraries)})')
     libraries_dir = self.game_dir / "libraries"
 
@@ -138,23 +138,15 @@ class Loader:
     self.window.evaluate_js(f'window.GameLog.resetProgress()')
 
   # * Assets
-  async def download_assets(self, assets: list, index: dict, id: str, limit=40) -> None:
-    assets_dir = self.main_dir / "assets" / id
+  async def download_assets(self, assets: list, index: str) -> None:
+    assets_dir = self.main_dir / "assets"
 
-    # ! Index
-    self.window.evaluate_js(f'window.GameLog.setMaxProgress({1 + len(assets)})')
-    
-    self.window.evaluate_js('window.GameLog.setCurrentFile("assets index")')
-    await self._download_file(index, assets_dir)
-    self.window.evaluate_js('window.GameLog.addProgress(1)')
-
-    # ! Assets
-    obj_dir = assets_dir / "objects"
+    self.window.evaluate_js(f'window.GameLog.setMaxProgress({len(assets)})')
 
     async def wrapper(f):
       async with self.sem:
         self.window.evaluate_js(f'window.GameLog.setCurrentFile("{Path(f["path"]).name}")')
-        await self._download_file(f, obj_dir)
+        await self._download_file(f, assets_dir)
         self.window.evaluate_js('window.GameLog.addProgress(1)')
 
     tasks = [wrapper(f) for f in assets]

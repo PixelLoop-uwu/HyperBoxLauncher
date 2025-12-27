@@ -66,9 +66,8 @@ class Launcher:
 
       self.window.evaluate_js(f'window.GameLog.setStage("Загрузка ассетов")')
       assets_dir = await self.loader.download_assets(
-        assets_manifest, modpack_manifest["assets"]["index"],
-        modpack_manifest["assets"]["id"]
-
+        assets_manifest,
+        modpack_manifest["assets"]["index"]
       )
 
       self.window.evaluate_js(f'window.GameLog.setStage("Загрузка библиотек")')

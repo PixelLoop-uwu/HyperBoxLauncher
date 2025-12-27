@@ -1,13 +1,79 @@
-<h1 align="center"> ☃️ HyperBox Launcher</h1>
+# HyperBox Launcher
 
-<h3 align="center">Репозиторий лаунчера майнкрафт проекта HyperBox</h3>
-<div align="center">
-  <img src="https://img.shields.io/badge/python-%2320232a?style=for-the-badge&logo=python&logoColor=%2361DAFB" alt="Python">
-  <img src="https://img.shields.io/badge/javascript-%2320232a.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E" alt="">
-  <img src="https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB" alt="React">
-</div>
+**Десктопный лаунчер Minecraft для проекта HyperBox**
 
-<div align="center">
-  <i>Пока что он не готов :(</i> 
-<!--   <img src="https://cdn.7tv.app/emote/01H1NANMP00005DBYT6M85RPAP/1x.avif" height="30"> -->
-</div>
+Лаунчер написан на Python и использует `pywebview` для отображения встроенного веб‑интерфейса. Обеспечивает авторизацию, управление профилем, загрузку скинов и запуск Minecraft с модификациями.
+
+## Технологии
+
+- Python 3.10+
+- pywebview (Qt GUI framework)
+- aiohttp (асинхронные HTTP запросы)
+- Pillow, psutil, loguru
+- React‑подобный фронтенд (HTML/JS/CSS)
+
+## Архитектура
+
+### Структура проекта
+
+- `src/hyperbox.launcher/` — основной пакет лаунчера
+  - `main4.py` — точка входа, создание окна pywebview
+  - `auth.py` — валидация и обработка авторизации
+  - `client.py` — асинхронный HTTP-клиент для API
+  - `services.py` — работа с конфигурацией и настройками
+  - `webview_api.py` — обеспечение взаимодействия между фронтенд и Python
+  - `_config_.py` — константы и переменные окружения
+  - `utils.py` — вспомогательные функции
+  - `launcher/` — компоненты запуска Minecraft
+
+- `webUI/` — встроенный веб-интерфейс
+  - `index.html` — основная разметка
+  - `index.jsx` — React компоненты (или аналог)
+  - `style.css` — стили UI
+  - `apps/` — сцены (login, main, loading)
+  - `assets/` — ресурсы (шрифты, иконки, изображения)
+  - `libs/` — JavaScript библиотеки (Babel и т.д.)
+
+### Основные компоненты
+
+**Авторизация:**
+- Валидация username и token по паттернам
+- Проверка учётных данных через API
+- Сохранение последней использованной учётной записи
+- Получение assets_token для работы с ресурсами
+
+**Интеграция с API:**
+- Отправка запросов на сервер HyperBox
+- Получение списка модпаков
+- Загрузка скинов
+- Синхронизация данных профиля
+
+**Управление конфигурацией:**
+- Сохранение настроек лаунчера (RAM, разрешение, режимы)
+- Хранение путей к директориям
+- Автоматическое управление главной папкой (`%APPDATA%/HyperBox`)
+
+**Запуск Minecraft:**
+- Проверка системных ресурсов
+- Управление параметрами JVM
+- Загрузка модпаков и библиотек
+
+## Ключевые файлы
+
+- `src/hyperbox.launcher/main4.py` — инициализация приложения и окна
+- `src/hyperbox.launcher/auth.py` — логика авторизации с валидацией
+- `src/hyperbox.launcher/client.py` — асинхронный HTTP-клиент
+- `src/hyperbox.launcher/services.py` — управление конфигурациями и данными
+- `src/hyperbox.launcher/_config_.py` — конфигурация (API URL, токены, пути)
+- `webUI/index.html` — главный файл фронтенда
+
+## Особенности
+
+- Асинхронная обработка сетевых запросов
+- Встроенный веб-интерфейс с pywebview
+- Кроссплатформенность (Windows, Linux, macOS)
+- Валидация данных на стороне клиента
+- Безопасное хранение токенов авторизации
+- Интеграция с HyperBox API сервером
+
+☃️
