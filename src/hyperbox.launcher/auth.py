@@ -41,24 +41,17 @@ class Auth:
 
 
   async def try_to_login(self, username: str, token: str) -> dict:
-
     if not (Auth._is_username_valid(username) and Auth._is_token_valid(token)):
       logger.error("Username or Token is invalid")
       return {"status": "error", "type": "token_or_username_is_invalid"}
 
-    # API request
-    async with self.client as api:
+    async with Client() as api:
       logger.info(f"Trying to login with {username} {token}")
       ok = await api.try_to_login(username, token)
 
-      logger.error(ok)
-
-      if ok.get("status") == True:
-        self.assets_token = ok.get("assets_token", None)
+      if ok.get("status") is True:
+        self.assets_token = ok.get("assets_token")
         logger.success("Success")
-
-      # if ok.get("status") == "error":
-      #   logger.error(f'Authorization error: {ok["error"]}')
 
       self.username = username
       save_last_login_options(username, token)
@@ -66,4 +59,4 @@ class Auth:
     return ok
   
 
-auth = Auth()   
+auth = Auth() 

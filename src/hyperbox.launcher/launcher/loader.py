@@ -17,6 +17,9 @@ class Loader:
     self.window = window
 
     self.sem = asyncio.Semaphore(limit)
+    self.client = httpx.AsyncClient(
+      limits=httpx.Limits(max_connections=60, max_keepalive_connections=20)
+    )
 
   async def _file_matches(self, path: Path, expected_size: int, expected_sha1: str) -> bool:
     """Check if a file exists and matches expected size and SHA-1."""
@@ -55,28 +58,24 @@ class Loader:
     try:
       logger.info(f"Downloading {file_info['url']} -> {temp_path}")
       
-      # Используем stream, чтобы корректно читать байты в файл
       async with self.client.stream("GET", file_info["url"], timeout=60) as response:
         response.raise_for_status()
-        
+          
         async with aiofiles.open(temp_path, "wb") as f:
           async for chunk in response.aiter_bytes(chunk_size=8192):
             await f.write(chunk)
 
-      # Проверка размера
       if temp_path.stat().st_size != file_info["size"]:
         raise ValueError(
           f"File size mismatch: expected {file_info['size']}, got {temp_path.stat().st_size}"
         )
-
-      # Так как файлы маленькие (~2МБ), read_bytes() безопасен
+      
       sha1 = hashlib.sha1(temp_path.read_bytes()).hexdigest()
       if sha1 != file_info["sha1"]:
         raise ValueError(
           f"SHA-1 mismatch: expected {file_info['sha1']}, got {sha1}"
         )
-
-      # Перемещаем файл из временной папки в целевую
+      
       shutil.move(str(temp_path), str(path))
       logger.info(f"File successfully downloaded and moved: {path}")
       
@@ -85,7 +84,7 @@ class Loader:
         shutil.rmtree(temp_dir)
 
 
-  # * Assets
+  # * java
   async def download_java(self, java: list, version: str) -> Path:
     self.window.evaluate_js(f'window.GameLog.setMaxProgress({len(java)})')
     java_dir = self.main_dir / "java" / version
@@ -93,8 +92,8 @@ class Loader:
     async def wrapper(item):
       async with self.sem:
         self.window.evaluate_js(f'window.GameLog.setCurrentFile("{Path(item["path"]).name}")')
-        await self._download_file(item, java_dir)
         self.window.evaluate_js('window.GameLog.addProgress(1)')
+        await self._download_file(item, java_dir)
 
     tasks = [wrapper(item) for item in java]
     await asyncio.gather(*tasks)
@@ -110,8 +109,8 @@ class Loader:
     async def wrapper(lib):
       async with self.sem:
         self.window.evaluate_js(f'window.GameLog.setCurrentFile("{Path(lib["path"]).name}")')
-        await self._download_file(lib, libraries_dir)
         self.window.evaluate_js('window.GameLog.addProgress(1)')
+        await self._download_file(lib, libraries_dir)
 
     tasks = [wrapper(lib) for lib in libraries]
     await asyncio.gather(*tasks)
@@ -123,17 +122,17 @@ class Loader:
     async def wrapper(item):
       async with self.sem:
         self.window.evaluate_js(f'window.GameLog.setCurrentFile("{Path(item["path"]).name}")')
-        await self._download_file(item, self.game_dir)
         self.window.evaluate_js('window.GameLog.addProgress(1)')
+        await self._download_file(item, self.game_dir)
 
-    # ! Required
+    # Required
     required_resources = resources["requiredResources"]
 
     self.window.evaluate_js(f'window.GameLog.setMaxProgress({len(required_resources)})')
     tasks = [wrapper(item) for item in required_resources]
     await asyncio.gather(*tasks)
 
-    # ! Static
+    # Static
     if not _config_.CONFIG_FILE.exists():
       static_resources = resources["staticResources"]
 
@@ -144,7 +143,7 @@ class Loader:
     self.window.evaluate_js(f'window.GameLog.resetProgress()')
 
   # * Assets
-  async def download_assets(self, assets: list, index: str) -> None:
+  async def download_assets(self, assets: list) -> None:
     assets_dir = self.main_dir / "assets"
 
     self.window.evaluate_js(f'window.GameLog.setMaxProgress({len(assets)})')
@@ -152,8 +151,8 @@ class Loader:
     async def wrapper(f):
       async with self.sem:
         self.window.evaluate_js(f'window.GameLog.setCurrentFile("{Path(f["path"]).name}")')
-        await self._download_file(f, assets_dir)
         self.window.evaluate_js('window.GameLog.addProgress(1)')
+        await self._download_file(f, assets_dir)
 
     tasks = [wrapper(f) for f in assets]
     await asyncio.gather(*tasks)

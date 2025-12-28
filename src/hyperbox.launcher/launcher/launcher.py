@@ -53,7 +53,7 @@ class Launcher:
       if self.is_error(java_manifest): return
     
       assets_manifest = await api.get_from_url(
-        modpack_manifest["assets"]["urls"]
+        modpack_manifest["assets"]["url"]
       )
 
       if self.is_error(assets_manifest): return
@@ -61,13 +61,13 @@ class Launcher:
     try: 
       self.window.evaluate_js(f'window.GameLog.setStage("Загрузка java")')
       executable_java = await self.loader.download_java(
-        java_manifest, modpack_manifest["java"]["version"]
+        java_manifest, 
+        modpack_manifest["java"]["version"]
       )
 
       self.window.evaluate_js(f'window.GameLog.setStage("Загрузка ассетов")')
       assets_dir = await self.loader.download_assets(
-        assets_manifest,
-        modpack_manifest["assets"]["index"]
+        assets_manifest
       )
 
       self.window.evaluate_js(f'window.GameLog.setStage("Загрузка библиотек")')
@@ -103,6 +103,8 @@ class Launcher:
       executable_java,
       self.settings["ram"]
     )
+
+    print(LaunchCommand)
 
     subprocess.Popen(
       LaunchCommand, 

@@ -10,7 +10,7 @@ class Command:
     self.main_dir = main_dir
 
   def get(self, command_template: dict, assets_dir: Path, executable_java: Path, ram_amount: int) -> list:
-    command = [executable_java, "-Xms1G", f"-Xmx{ram_amount}M", f"-DUltraSecretKey={auth.get_assets_token()}"]
+    command = [str(executable_java).replace('\\', "/"), "-Xms1G", f"-Xmx{ram_amount}M", f"-DUltraSecretKey={auth.get_assets_token()}"]
 
     placeholders = {
       "natives_path": self.main_dir / "natives",
