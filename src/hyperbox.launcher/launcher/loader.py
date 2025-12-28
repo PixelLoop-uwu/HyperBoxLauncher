@@ -1,6 +1,6 @@
 import shutil
 import hashlib
-import aiohttp
+import httpx
 import aiofiles
 import tempfile
 import asyncio
@@ -37,9 +37,9 @@ class Loader:
   
   
   @retry(
-    stop=stop_after_attempt(3), 
-    wait=wait_exponential(min=1, max=5), 
-    retry=retry_if_exception_type((aiohttp.ClientError, asyncio.TimeoutError, OSError))
+    stop=stop_after_attempt(3),
+    wait=wait_exponential(min=1, max=5),
+    retry=retry_if_exception_type((httpx.HTTPError, httpx.TimeoutException, OSError))
   )
   async def _download_file(self, file_info: dict, base_dir: Path) -> None:
     """Download a file asynchronously and verify its integrity."""
@@ -53,27 +53,33 @@ class Loader:
     temp_path = temp_dir / path.name
 
     try:
-      async with aiohttp.ClientSession() as session:
-        logger.info(f"Downloading {file_info['url']} -> {temp_path}")
-        async with session.get(file_info["url"], timeout=60) as response:
-          response.raise_for_status()
-          async with aiofiles.open(temp_path, "wb") as f:
-            async for chunk in response.content.iter_chunked(8192):
-              await f.write(chunk)
+      logger.info(f"Downloading {file_info['url']} -> {temp_path}")
+      
+      # Используем stream, чтобы корректно читать байты в файл
+      async with self.client.stream("GET", file_info["url"], timeout=60) as response:
+        response.raise_for_status()
+        
+        async with aiofiles.open(temp_path, "wb") as f:
+          async for chunk in response.aiter_bytes(chunk_size=8192):
+            await f.write(chunk)
 
+      # Проверка размера
       if temp_path.stat().st_size != file_info["size"]:
         raise ValueError(
           f"File size mismatch: expected {file_info['size']}, got {temp_path.stat().st_size}"
         )
 
+      # Так как файлы маленькие (~2МБ), read_bytes() безопасен
       sha1 = hashlib.sha1(temp_path.read_bytes()).hexdigest()
       if sha1 != file_info["sha1"]:
         raise ValueError(
           f"SHA-1 mismatch: expected {file_info['sha1']}, got {sha1}"
         )
 
+      # Перемещаем файл из временной папки в целевую
       shutil.move(str(temp_path), str(path))
       logger.info(f"File successfully downloaded and moved: {path}")
+      
     finally:
       if temp_dir.exists():
         shutil.rmtree(temp_dir)

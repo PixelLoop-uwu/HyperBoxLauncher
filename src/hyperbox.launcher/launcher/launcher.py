@@ -1,15 +1,15 @@
 import subprocess
-import aiohttp
 import asyncio
+import httpx
 from tenacity import RetryError
 from pathlib import Path
 from loguru import logger
 
 from .loader import Loader
 from .command import Command
+from _config_ import _config_
 from client import Client
 from services import get_launcher_settings
-from _config_ import _config_
 
 class Launcher:
   def __init__(self, modpack, window):
@@ -82,7 +82,7 @@ class Launcher:
 
     except RetryError as e:
       original = e.last_attempt.exception()
-      if isinstance(original, (aiohttp.ClientError, asyncio.TimeoutError, OSError)):
+      if isinstance(original, (httpx.HTTPError, asyncio.TimeoutError, OSError)):
         logger.critical(f"Failed after retries: {original}")
       
       else:

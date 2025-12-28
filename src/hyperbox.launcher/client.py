@@ -1,5 +1,4 @@
-import aiohttp
-import asyncio
+import httpx
 from loguru import logger
 
 from _config_ import _config_
@@ -7,42 +6,42 @@ from _config_ import _config_
 
 class Client:
   def __init__(self, host=_config_.API):
-    self.base_url = host
-    self.session = None
+    self.client = httpx.AsyncClient(
+      base_url=host,
+      timeout=10.0,
+      follow_redirects=True
+    )
 
   async def __aenter__(self):
-    self.session = aiohttp.ClientSession()
+    await self.client.__aenter__()
     return self
 
   async def __aexit__(self, exc_type, exc, tb):
-    await self.session.close()
+    await self.client.__aexit__(exc_type, exc, tb)
 
-
-  async def _request(self, method, url=None, endpoint=None, params=None, json=None):
-    url = url or f"{self.base_url}/{endpoint}"
+  async def _request(self, method: str, url: str = None, endpoint: str = None, params: dict = None, json: dict = None):
+    target = url or endpoint
 
     try:
-      async with self.session.request(
-        method=method, 
-        url=url, 
-        params=params, 
-        json=json,
-        timeout=10
-      ) as response:
-        
-        if response.status >= 400:
-          text = await response.text()
-          logger.error(f"HTTP {response.status} error from {url}: {text}")
-          return {
-            "status": "error",
-            "error": "http_error",
-            "code": response.status,
-            "text": text
-          }
-        
-        return await response.json()
+      response = await self.client.request(
+        method=method,
+        url=target,
+        params=params,
+        json=json
+      )
 
-    except aiohttp.ClientConnectionError as e:
+      if response.is_error:
+        logger.error(f"HTTP {response.status_code} error from {response.url}: {response.text}")
+        return {
+          "status": "error",
+          "error": "http_error",
+          "code": response.status_code,
+          "text": response.text
+        }
+
+      return response.json()
+
+    except httpx.ConnectError as e:
       logger.error(f"Connection error: {e}")
       return {
         "status": "error",
@@ -50,8 +49,8 @@ class Client:
         "text": str(e)
       }
 
-    except asyncio.TimeoutError:
-      logger.error(f"Timeout while requesting {url}")
+    except httpx.TimeoutException:
+      logger.error(f"Timeout while requesting {target}")
       return {
         "status": "error",
         "error": "timeout",
@@ -65,7 +64,6 @@ class Client:
         "error": "unexpected_error",
         "text": str(e)
       }
-
 
   async def try_to_login(self, username: str, token: str) -> dict:
     return await self._request("POST", endpoint="users/login", json={
