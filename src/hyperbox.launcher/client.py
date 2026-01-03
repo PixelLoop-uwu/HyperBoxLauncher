@@ -83,7 +83,7 @@ class Client:
   
   async def upload_skin(self, base64Data, username, assets_token) -> dict:
     return await self._request("POST", endpoint="skins/upload_skin", json={
-      "base64Data": base64Data,
+      "base64data": base64Data,
       "username": username,
       "app_token": _config_.APP_TOKEN
     })

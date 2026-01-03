@@ -63,7 +63,7 @@ async def upload_skin(base64Data) -> dict:
 		logger.error(str(e))
 		return {"status": "error", "text": "Файл поврежден"}
 
-	if not img.size in (64, 64):
+	if img.size != (64, 64):
 		logger.error("Incorrect skin format")
 		return {"status": "error", "text": "Неверный формат"}
 

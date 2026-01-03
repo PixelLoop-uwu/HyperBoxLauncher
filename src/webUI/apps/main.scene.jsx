@@ -20,6 +20,8 @@ function Main() {
   const [gameLogsOpen, setGameLogsOpen] = useState(false);
 
   const [connectionError, setConnectionError] = useState(false);
+
+  const [avatarKey, setAvatarKey] = useState(0);
   
   
   useEffect(() => {
@@ -97,7 +99,13 @@ function Main() {
 
     reader.onload = async (e) => {
       const base64Data = e.target.result.split(',')[1];
-      await window.pywebview.api.uploadSkin(base64Data);
+      const result = await window.pywebview.api.uploadSkin(base64Data);
+
+      console.log(result)
+
+      if (result && result.status === true) {
+        setAvatarKey(prev => prev + 1);
+      }
     };
     reader.readAsDataURL(file);
   }
@@ -141,13 +149,17 @@ function Main() {
             <img src="../assets/main/folder_icon.svg" alt="" />
           </button>
 
-          <div className="main-auth">
-            <label>
-              <img src={`https://api.hyperbox.world/skins/get_avatar/${data && data.username}`} alt="" />
-              <input type="file" name="skin" onChange={skinHandler} hidden />
-            </label>
+          <label className="main-auth tooltip-container" style={{cursor: 'pointer'}}>
+            {data ? 
+              <img src={`https://api.hyperbox.world/skins/get_avatar/${data.username}?v=${avatarKey}`} alt="" />  
+              : 
+              <img src="" alt="" />
+            }
+      
+            <input type="file" name="skin" onChange={skinHandler} style={{display: 'none'}} />
             <span>{data ? data.username : 'загрузка'}</span>
-          </div>
+            <div className="main-auth-tooltip">Нажмите, чтобы сменить скин</div>
+          </label>
         </div>
       </div>
 

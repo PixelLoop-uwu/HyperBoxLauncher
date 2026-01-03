@@ -31,7 +31,7 @@ class Api:
     return services.get_last_login_options()
   
   def connectionCheck(self) -> bool:
-    return True
+    # return True
     try: import requests; return requests.get(_config_.API, timeout=2).ok
     except: return False
 
@@ -69,6 +69,6 @@ class Api:
     )
 
   def uploadSkin(self, base64Data) -> dict:
-    print(asyncio.run(
+    return asyncio.run(
       services.upload_skin(base64Data)
-    ))
+    )
