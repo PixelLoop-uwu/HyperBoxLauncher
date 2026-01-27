@@ -22,9 +22,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install aiofiles python-dotenv loguru minecraft-launcher-lib pillow psutil pywebview==6.1 tenacity httpx nuitka zstandard ordered-set
 
-      - name: Build EXE via Nuitka
+      - name: Build EXE via Nuitka (Direct Command)
+        shell: cmd
         run: |
-          # Запускаем сборку напрямую
           python -m nuitka --standalone --onefile --disable-console ^
           --include-data-dir=src/webUI=webUI ^
           --company-name="Hyperbox" ^
