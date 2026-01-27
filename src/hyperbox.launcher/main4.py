@@ -31,7 +31,7 @@ def run() -> None:
 
   webview.create_window(
     title="HyperBox Launcher",
-    url=get_path(""),
+    url=get_path("index.html"),
     # url="../webUI/index.html",
 
     frameless=True,
