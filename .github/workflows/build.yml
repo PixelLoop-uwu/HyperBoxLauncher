@@ -25,7 +25,7 @@ jobs:
       - name: Build EXE via Nuitka (Direct Command)
         shell: cmd
         run: |
-          python -m nuitka --standalone --onefile --disable-console ^
+          python -m nuitka --assume-yes-for-downloads --standalone --onefile --disable-console ^
           --include-data-dir=src/webUI=webUI ^
           --company-name="Hyperbox" ^
           --product-name="Hyperbox launcher" ^
