@@ -26,6 +26,8 @@ jobs:
         shell: cmd
         run: |
           python -m nuitka --assume-yes-for-downloads --standalone --onefile --disable-console ^
+          --windows-icon-from-ico="icon.ico" ^
+          --output-filename="Hyperbox.exe" ^
           --include-data-dir=src/webUI=webUI ^
           --company-name="Hyperbox" ^
           --product-name="Hyperbox launcher" ^
