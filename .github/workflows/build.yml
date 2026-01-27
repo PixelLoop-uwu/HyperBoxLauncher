@@ -20,29 +20,26 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          # Устанавливаем зависимости напрямую
           pip install aiofiles python-dotenv loguru minecraft-launcher-lib pillow psutil pywebview==6.1 tenacity httpx nuitka zstandard ordered-set
 
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-result
-          path: build/*.exe
+      - name: Build EXE via Nuitka
+        run: |
+          # Запускаем сборку напрямую
+          python -m nuitka --standalone --onefile --disable-console ^
+          --include-data-dir=src/webUI=webUI ^
+          --company-name="Hyperbox" ^
+          --product-name="Hyperbox launcher" ^
+          --file-version="1.0.0.0" ^
+          --product-version="1.0.0.0" ^
+          --file-description="Hyperbox Launcher" ^
+          --copyright="Copyright (c) 2026" ^
+          --enable-plugin=pywebview ^
+          --output-dir=final_build ^
+          src/hyperbox.launcher/main4.py
 
-          mode: onefile
-          include-data-dir: src/webUI=webUI 
-          enable-plugins: anti-bloat,pywebview
-          disable-console: true
-          
-          company-name: "Hyperbox"
-          product-name: "Hyperbox launcher"
-          file-version: "1.0.0.0"
-          product-version: "1.0.0.0"
-          file-description: "Hyperbox Launcher"
-          copyright: "Copyright (c) 2026"
-      
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: build-result
-          path: dist/*.exe
+          name: Hyperbox-Launcher-Build
+          path: final_build/*.exe
+      
