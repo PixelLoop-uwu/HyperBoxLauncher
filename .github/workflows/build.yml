@@ -1,7 +1,7 @@
 name: Build EXE with Nuitka
 
 on:
-  workflow_dispatch:
+  workflow_dispatch: 
 
 jobs:
   build:
@@ -18,24 +18,26 @@ jobs:
 
       - name: Install dependencies
         run: |
+          # Устанавливаем зависимости из pyproject.toml в системный Python
           uv pip install --system -r pyproject.toml
-          # uv sync --frozen
+          # Устанавливаем сам pywebview и nuitka, чтобы они точно были в системе
+          uv pip install --system pywebview nuitka
 
       - name: Build EXE
         uses: Nuitka/Nuitka-Action@main
         with:
-          nuitka-version: stable
           script-name: src/hyperbox.launcher/main4.py  
-          onefile: true
-          standalone: true
+          mode: onefile
+          
           include-data-dir: src/webUI=webUI 
           enable-plugins: anti-bloat,pywebview
+          disable-console: true
           
           company-name: "Hyperbox"
           product-name: "Hyperbox launcher"
           file-version: "1.0.0.0"
           product-version: "1.0.0.0"
-          file-description: "Built with uv and Nuitka"
+          file-description: "Hyperbox Launcher - Built with uv and Nuitka"
           copyright: "Copyright (c) 2026"
 
       - name: Upload Artifacts
