@@ -23,10 +23,12 @@ jobs:
           # Устанавливаем зависимости напрямую
           pip install aiofiles python-dotenv loguru minecraft-launcher-lib pillow psutil pywebview==6.1 tenacity httpx nuitka zstandard ordered-set
 
-      - name: Build EXE
-        uses: Nuitka/Nuitka-Action@main
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
         with:
-          script-name: src/hyperbox.launcher/main4.py  
+          name: build-result
+          path: build/*.exe
+
           mode: onefile
           include-data-dir: src/webUI=webUI 
           enable-plugins: anti-bloat,pywebview
