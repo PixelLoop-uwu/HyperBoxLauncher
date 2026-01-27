@@ -31,24 +31,12 @@ class Api:
     return services.get_last_login_options()
   
   def connectionCheck(self) -> bool:
-    # return True
-    try: import requests; return requests.get(_config_.API, timeout=2).ok
-    except: return False
+    return True
+    # try: import requests; return requests.get(_config_.API, timeout=2).ok
+    # except: return False
 
 
   # * Main screen
-  async def _async_get_modpacks_data(self):
-    async with self.client as api:
-      return await api.get_modpacks_data()
-
-  def getMainData(self) -> dict:
-    return {
-      "username": self.auth.get_username(),
-      "modpacks": asyncio.run( 
-        self._async_get_modpacks_data()
-      )
-    }
-  
   def getLauncherSettings(self) -> dict:
     return services.get_launcher_settings()
   

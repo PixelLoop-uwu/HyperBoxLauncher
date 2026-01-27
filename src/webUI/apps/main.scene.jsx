@@ -1,7 +1,7 @@
 const { useState, useEffect } = React;
 
-function Main() {
-  const [data, setData] = useState(null);
+function Main({ launcherData }) {
+  const [data, setData] = useState(launcherData);
   const [currentModpack, setCurrentModpack] = useState(0);
 
   const [animating, setAnimating] = useState(false);
@@ -26,15 +26,7 @@ function Main() {
   
   useEffect(() => {
     async function getMainData() {
-      const modpacks = await window.pywebview.api.getMainData();
       const settings = await window.pywebview.api.getLauncherSettings();
-      
-      if (modpacks.status == "error") {
-        setConnectionError(true)
-        return
-      }
-
-      setData(modpacks);
 
       setFullscreenOption(settings.fullscreen);
       setDebugOption(settings.debug);
@@ -74,6 +66,10 @@ function Main() {
     onClick={() => handleClickModpack(modpackInfo.id)}
     >
       <span className="name">{modpackInfo.title}</span>
+      {/* <div className="online-container">
+        <span className="online-dot"></span>
+        <span className="online">{onlineString[0]}/{onlineString[1]}</span>
+      </div> */}
     </div>
   )
 
@@ -124,6 +120,7 @@ function Main() {
 
       <div className="main-modpacks-list">
         {data ? data.modpacks.map(m => modpackTemplate(m)) : 'Loading'}
+        {/* <div className="placeholder"></div> */}
       </div>
 
       <div className="main-content">

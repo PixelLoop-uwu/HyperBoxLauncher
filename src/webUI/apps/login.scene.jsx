@@ -4,7 +4,7 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-function Login ({ setScene }) {
+function Login ({ setScene, setLauncherData }) {
   const [visible, setVisible] = useState(false);
 
   const [login, setLogin] = useState('');
@@ -36,6 +36,8 @@ function Login ({ setScene }) {
   }, [])
 
   async function tryToLogin() {
+    if (!login || !token) return;
+
     if (window.pywebview?.api) {
       setLoginOpacity(0.8)
       isDisabledToggle(true)
@@ -59,7 +61,8 @@ function Login ({ setScene }) {
         }
       }
 
-      if (status.status == true) {
+      if (status.status == "ok") {
+        setLauncherData(status)
         setScene("main");
       }
   }}

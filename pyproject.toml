@@ -15,7 +15,5 @@ dependencies = [
   "pywebview==6.1",
   "tenacity>=9.1.2",
   "httpx>=0.28.1",
+  "nuitka>=2.8.8",
 ]
-
-[project.optional-dependencies]
-build = ["nuitka>=2.8.8"]

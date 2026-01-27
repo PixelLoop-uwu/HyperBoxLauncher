@@ -41,8 +41,7 @@ class Launcher:
 
   async def run(self) -> None:
     async with self.client as api:
-      modpack_url = f"{_config_.API}/modpacks/{self.modpack}"
-      modpack_manifest = await api.get_from_url(modpack_url)
+      modpack_manifest = await api.get_modpack_manifest(self.modpack)
 
       if self.is_error(modpack_manifest): return
 

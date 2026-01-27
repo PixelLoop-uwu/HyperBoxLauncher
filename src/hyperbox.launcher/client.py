@@ -9,7 +9,8 @@ class Client:
     self.client = httpx.AsyncClient(
       base_url=host,
       timeout=10.0,
-      follow_redirects=True
+      follow_redirects=True,
+      trust_env=False
     )
 
   async def __aenter__(self):
@@ -19,7 +20,15 @@ class Client:
   async def __aexit__(self, exc_type, exc, tb):
     await self.client.__aexit__(exc_type, exc, tb)
 
-  async def _request(self, method: str, url: str = None, endpoint: str = None, params: dict = None, json: dict = None):
+  async def _request(
+    self, 
+    method: str, 
+    url: str = None, 
+    endpoint: str = None, 
+    params: dict = None, 
+    json: dict = None,
+    header: str = None
+  ):
     target = url or endpoint
 
     try:
@@ -27,11 +36,15 @@ class Client:
         method=method,
         url=target,
         params=params,
-        json=json
+        json=json,
+        headers=header
       )
 
       if response.is_error:
-        logger.error(f"HTTP {response.status_code} error from {response.url}: {response.text}")
+        logger.error(
+          f"HTTP {response.status_code} error from "
+          "{response.url}: {response.text}"
+        )
         return {
           "status": "error",
           "error": "http_error",
@@ -65,25 +78,30 @@ class Client:
         "text": str(e)
       }
 
-  async def try_to_login(self, username: str, token: str) -> dict:
-    return await self._request("POST", endpoint="users/login", json={
-      "username": username,
-      "token": token,
-      "app_token": _config_.APP_TOKEN
-    })
 
-  async def get_modpacks_data(self) -> list:
-    return await self._request("GET", endpoint="modpacks/getlist")
+  async def try_to_login(self, username: str, token: str) -> dict:
+    return await self._request(
+      "POST", 
+      endpoint="/users/login", 
+      json={"minecraft_username": username, "token": token}
+    )
   
   async def get_modpack_manifest(self, modpack: str) -> dict:
-    return await self._request("GET", endpoint="modpacks", params={"modpack": modpack})
+    return await self._request(
+      "GET", 
+      endpoint="/modpacks/get", 
+      params={"modpack": modpack}
+      )
+  
+  async def upload_skin(self, base64Data: str, username: str, jwt: str) -> dict:
+    header = {"Authorization": f"Bearer {jwt}"}
+
+    return await self._request(
+      "POST", 
+      header=header, 
+      endpoint="/skins/upload_skin", 
+      json={"base64data": base64Data, "minecraft_username": username}
+    )
   
   async def get_from_url(self, url: str) -> dict:
     return await self._request("GET", url=url)
-  
-  async def upload_skin(self, base64Data, username, assets_token) -> dict:
-    return await self._request("POST", endpoint="skins/upload_skin", json={
-      "base64data": base64Data,
-      "username": username,
-      "app_token": _config_.APP_TOKEN
-    })

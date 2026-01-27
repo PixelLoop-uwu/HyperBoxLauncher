@@ -263,13 +263,18 @@ input[type="password"]::-ms-clear {
   margin-left: 15px;
 }
 
-.modpack-card {
-  flex: 1;
+
+.modpack-card,
+.main-modpacks-list > .placeholder {
+  /* flex: 0 0 25%; */
   width: 85%;
+  flex: 1;
   padding: 8px 0;
   background-color: rgba(255, 255, 255, 0.03);
   border-radius: 10px;
   display: flex;
+  flex-direction: column;
+  gap: 5px;
   justify-content: center;
   align-items: center;
   box-sizing: border-box;
@@ -277,6 +282,10 @@ input[type="password"]::-ms-clear {
   font-family: var(--font-secondary);
 
   transition: all 0.3s ease;
+}
+
+.main-modpacks-list > .placeholder {
+  flex: 7;
 }
 
 .modpack-card.active > span {
@@ -291,6 +300,56 @@ input[type="password"]::-ms-clear {
   font-weight: bold;
   opacity: 0.8;
   transition: opacity 0.3s ease;
+}
+
+.online-container {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+  justify-content: center;
+  align-items: center;
+}
+
+.online {
+  color: #37894e;
+  font-family: var(--font-secondary);
+  font-weight: bold;
+    font-size: 12px;
+}
+
+.online-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #37894e; /* насыщенный зелёный */
+  border-radius: 50%;
+  position: relative;
+  z-index: 1;
+}
+
+/* Внешняя пульсация */
+.online-dot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background-color: #37894e;
+  /* animation: pulse-out 2.8s infinite ease-out; */
+  z-index: -1;
+}
+
+@keyframes pulse-out {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  70% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
 }
 
 .main-content {
@@ -322,7 +381,7 @@ input[type="password"]::-ms-clear {
   font-weight: 8;
   z-index: 1; 
   font-family: var(--font-secondary);
-  font-weight: 500;
+  font-weight: 700;
 }
 
 .main-description {
@@ -331,7 +390,7 @@ input[type="password"]::-ms-clear {
 
   text-wrap: initial;
   opacity: 0.8;
-  margin-top: 10px;
+  margin-top: 20px;
   max-width: 80%;
 }
 
@@ -470,7 +529,7 @@ input[type="password"]::-ms-clear {
   bottom: -2px;
   width: 100%;
 
-  height: 2px;
+  height: 1.5px;
   background: white;
   border-radius: 2px;
   

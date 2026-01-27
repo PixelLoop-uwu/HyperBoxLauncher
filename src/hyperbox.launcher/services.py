@@ -71,6 +71,6 @@ async def upload_skin(base64Data) -> dict:
 		return await client.upload_skin(
 			base64Data, 
 			auth.get_username(), 
-			_config_.APP_TOKEN
+			auth.get_jwt_token()
 		)
   

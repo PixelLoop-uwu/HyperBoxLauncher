@@ -99,7 +99,7 @@ class Loader:
     await asyncio.gather(*tasks)
 
     self.window.evaluate_js(f'window.GameLog.resetProgress()')
-    return java_dir / "bin/java.exe"
+    return java_dir / "bin/java.exe" if _config_.DEBUG else "bin/javaw.exe"
 
   # * Libraries
   async def download_libraries(self, libraries: list) -> None:

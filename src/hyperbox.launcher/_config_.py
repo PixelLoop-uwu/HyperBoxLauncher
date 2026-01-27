@@ -6,14 +6,13 @@ load_dotenv()
 
 class _config_:
   API = "https://Api.Hyperbox.world"
+  DEBUG = True
 
   MAIN_DIR = Path(os.environ.get('APPDATA', Path.home())) / 'HyperBox'
   TEMP_DIR = Path(os.environ.get('TEMP', "/tmp"))
 
   CONFIG_FILE = MAIN_DIR / "config.bin"
   UPDATES_DIR = MAIN_DIR / "updates"
-
-  APP_TOKEN = os.environ['app_token']
 
   DEFAULT_LAUNCHER_OPTIONS = {
     "ram": 4096,

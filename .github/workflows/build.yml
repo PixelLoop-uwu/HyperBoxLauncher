@@ -1,0 +1,46 @@
+name: Build EXE with Nuitka
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          uv pip install --system -r pyproject.toml
+          # uv sync --frozen
+
+      - name: Build EXE
+        uses: Nuitka/Nuitka-Action@main
+        with:
+          nuitka-version: stable
+          script-name: src/hyperbox.launcher/main4.py  
+          onefile: true
+          standalone: true
+          include-data-dir: src/webUI=webUI 
+          enable-plugins: anti-bloat,pywebview
+          
+          company-name: "Hyperbox"
+          product-name: "Hyperbox launcher"
+          file-version: "1.0.0.0"
+          product-version: "1.0.0.0"
+          file-description: "Built with uv and Nuitka"
+          copyright: "Copyright (c) 2026"
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-result
+          path: |
+            build/*.exe

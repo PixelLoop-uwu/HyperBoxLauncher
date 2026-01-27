@@ -3,6 +3,7 @@ const { useState, useEffect } = React;
 
 function App () {
   const [scene, setScene] = useState("login");
+  const [launcherData, setLauncherData] = useState([]);
   
   useEffect(() => {
     const handler = () => {
@@ -18,7 +19,7 @@ function App () {
 
   const closeWindow = () => {
     if (window.pywebview?.api) {
-      window.pywebview.api.close(); 1   
+      window.pywebview.api.close(); 
     }
   };
 
@@ -38,8 +39,8 @@ function App () {
         </div>
       </header>
 
-      {scene == "login" && <Login setScene = {setScene} />}
-      {scene == "main" &&  <Main />}
+      {scene == "login" && <Login setScene = {setScene} setLauncherData = {setLauncherData} />}
+      {scene == "main" &&  <Main launcherData = {launcherData} />}
 
     </>
   )

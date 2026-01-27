@@ -1,6 +1,7 @@
 .venv
+.venv1
 **/__pycache__
 
+dist
 temp
-.launcher
 .env
