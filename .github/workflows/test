@@ -1,0 +1,80 @@
+name: Build EXE with Nuitka
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install aiofiles python-dotenv loguru pillow psutil pywebview==6.1 tenacity httpx nuitka zstandard ordered-set
+
+      # 1. Название + иконка
+      - name: Build EXE (Name + Icon)
+        shell: cmd
+        run: |
+          python -m nuitka --assume-yes-for-downloads --standalone --onefile --disable-console ^
+          --windows-icon-from-ico="icon.ico" ^
+          --output-filename="Hyperbox-Named-Icon.exe" ^
+          --include-data-dir=src/webUI=webUI ^
+          --company-name="Hyperbox" ^
+          --product-name="Hyperbox launcher" ^
+          --file-version="1.0.0.0" ^
+          --product-version="1.0.0.0" ^
+          --file-description="Hyperbox Launcher" ^
+          --copyright="Copyright (c) 2026" ^
+          --enable-plugin=pywebview ^
+          --output-dir=final_build ^
+          src/hyperbox.launcher/main4.py
+
+      # 2. Только иконка
+      - name: Build EXE (Icon only)
+        shell: cmd
+        run: |
+          python -m nuitka --assume-yes-for-downloads --standalone --onefile --disable-console ^
+          --include-data-dir=src/webUI=webUI ^
+          --company-name="Hyperbox" ^
+          --product-name="Hyperbox launcher" ^
+          --file-version="1.0.0.0" ^
+          --product-version="1.0.0.0" ^
+          --file-description="Hyperbox Launcher" ^
+          --copyright="Copyright (c) 2026" ^
+          --enable-plugin=pywebview ^
+          --output-dir=final_build ^
+          src/hyperbox.launcher/main4.py
+
+      # 3. Только название
+      - name: Build EXE (Name only)
+        shell: cmd
+        run: |
+          python -m nuitka --assume-yes-for-downloads --standalone --onefile --disable-console ^
+          --output-filename="Hyperbox-Named.exe" ^
+          --include-data-dir=src/webUI=webUI ^
+          --company-name="Hyperbox" ^
+          --product-name="Hyperbox launcher" ^
+          --file-version="1.0.0.0" ^
+          --product-version="1.0.0.0" ^
+          --file-description="Hyperbox Launcher" ^
+          --copyright="Copyright (c) 2026" ^
+          --enable-plugin=pywebview ^
+          --output-dir=final_build ^
+          src/hyperbox.launcher/main4.py
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Hyperbox-Launcher-Build
+          path: final_build/*.exe
